@@ -4,6 +4,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import yaml from 'js-yaml';
 import { template } from 'lodash-es';
+import {exec} from "node:child_process";
 
 export async function POST(
     req: Request,
@@ -73,6 +74,8 @@ export async function POST(
         yaml.dump(kustom)
     );
 
+
+
     // Namespace-Patch anlegen
     const ns = {
         apiVersion: 'v1',
@@ -84,5 +87,28 @@ export async function POST(
         yaml.dump(ns)
     );
 
-    return NextResponse.json({ success: true, overlay: `${service}-${id}` });
+    try {
+        // falls du LoadRestrictionsNone brauchst, erhöhe den Befehl um --load-restrictor=none
+        const { stdout, stderr } = await exec(
+            `kustomize build ${overlayDir}`
+        );
+        if (stderr) {
+            console.error('kustomize stderr:', stderr);
+        }
+        // Optional: schreibe das gebaute YAML in eine Datei
+        await fs.writeFile(path.join(overlayDir, 'all.yaml'), stdout || "Error");
+
+        // 5. Rückmeldung an den Client
+        return NextResponse.json({
+            success: true,
+            overlay: `${service}-${id}`,
+            builtYamlPath: `generated-overlays/${service}-${id}/all.yaml`
+        });
+    } catch (err: any) {
+        console.error('kustomize build failed:', err);
+        return NextResponse.json({
+            success: false,
+            error: err.message
+        }, { status: 500 });
+    }
 }
