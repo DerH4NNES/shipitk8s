@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${name}
+spec:
+  replicas: ${replicas}
+  template:
+    spec:
+      containers:
+        - name: ${name}
+          env:
+            - name: MYSQL_HOST
+              value: "mariadb"
+            - name: MYSQL_DATABASE
+              value: "nextcloud"
+            - name: MYSQL_USER
+              value: "root"
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ${name}-db-secret
+                  key: dbPassword

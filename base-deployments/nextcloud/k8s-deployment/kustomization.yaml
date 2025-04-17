@@ -1,0 +1,7 @@
+resources:
+  - mariadb
+  - deployment.yaml
+  - service.yaml
+  - pvc.yaml
+  - ingress.yaml
+  - secret.yaml
