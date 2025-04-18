@@ -19,7 +19,7 @@ export async function GET() {
             services.push({
                 name: serviceName,
                 description: meta.description || '',
-                variables: meta.variables || []
+                variables: meta.variables || [],
             });
         } catch {
             // fehlerhafte oder fehlende Meta-Datei überspringen

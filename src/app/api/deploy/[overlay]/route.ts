@@ -1,11 +1,8 @@
 import { NextResponse } from 'next/server';
 import path from 'path';
-import {exec} from "node:child_process";
+import { exec } from 'node:child_process';
 
-export async function POST(
-    req: Request,
-    context: { params: { overlay: string } }
-) {
+export async function POST(req: Request, context: { params: { overlay: string } }) {
     const { overlay } = await context.params;
     const dir = path.join(process.cwd(), 'generated-overlays', overlay);
 
@@ -18,9 +15,6 @@ export async function POST(
         return NextResponse.json({ success: true, message: stdout });
     } catch (e: any) {
         console.error('Deploy failed:', e);
-        return NextResponse.json(
-            { success: false, error: e.message },
-            { status: 500 }
-        );
+        return NextResponse.json({ success: false, error: e.message }, { status: 500 });
     }
 }

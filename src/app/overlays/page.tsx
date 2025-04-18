@@ -34,8 +34,8 @@ export default function OverlaysPage() {
     useEffect(() => {
         moment.locale('de');
         fetch('/api/overlays')
-            .then(res => res.json())
-            .then(data => setOverlays(data.overlays));
+            .then((res) => res.json())
+            .then((data) => setOverlays(data.overlays));
     }, []);
 
     const handleDeploy = async (overlay: string) => {
@@ -54,7 +54,7 @@ export default function OverlaysPage() {
         <div className="container py-4">
             <h1 className="mb-4">⛓️ Overlays Übersicht</h1>
             <div className="row g-4">
-                {overlays.map(o => {
+                {overlays.map((o) => {
                     const ts = parseInt(o.id, 10);
                     const rel = moment(ts).fromNow();
                     const exact = moment(ts).format('LLLL');
@@ -75,9 +75,7 @@ export default function OverlaysPage() {
                                 <div className="card-body d-flex flex-column">
                                     {/* Namespace */}
                                     <p className="mb-3">
-                    <span className="badge bg-info text-dark">
-                      Namespace: {o.namespace || '–'}
-                    </span>
+                                        <span className="badge bg-info text-dark">Namespace: {o.namespace || '–'}</span>
                                     </p>
 
                                     {/* PVCs */}
@@ -85,15 +83,13 @@ export default function OverlaysPage() {
                                         <h6 className="fw-semibold">PVCs</h6>
                                         {o.pvcs.length > 0 ? (
                                             <ul className="list-group list-group-sm">
-                                                {o.pvcs.map(p => (
+                                                {o.pvcs.map((p) => (
                                                     <li
                                                         className="list-group-item d-flex justify-content-between align-items-center"
                                                         key={p.name}
                                                     >
                                                         {p.name}
-                                                        <span className="badge bg-secondary">
-                              {p.storage}
-                            </span>
+                                                        <span className="badge bg-secondary">{p.storage}</span>
                                                     </li>
                                                 ))}
                                             </ul>
@@ -107,17 +103,14 @@ export default function OverlaysPage() {
                                         <h6 className="fw-semibold">Ingress</h6>
                                         {o.ingresses.length > 0 ? (
                                             <ul className="list-group list-group-sm">
-                                                {o.ingresses.map(i => (
+                                                {o.ingresses.map((i) => (
                                                     <li className="list-group-item" key={i.name}>
                                                         <strong>{i.name}</strong>
                                                         <br />
                                                         {i.hosts.map((h, idx) => (
-                                                            <span
-                                                                className="badge bg-light text-dark me-1"
-                                                                key={idx}
-                                                            >
-                                {h}
-                              </span>
+                                                            <span className="badge bg-light text-dark me-1" key={idx}>
+                                                                {h}
+                                                            </span>
                                                         ))}
                                                     </li>
                                                 ))}
@@ -134,16 +127,16 @@ export default function OverlaysPage() {
                                             <ul className="list-inline mb-0">
                                                 {o.cpuTotal && (
                                                     <li className="list-inline-item me-2">
-                            <span className="badge bg-warning text-dark">
-                              CPU: {o.cpuTotal}
-                            </span>
+                                                        <span className="badge bg-warning text-dark">
+                                                            CPU: {o.cpuTotal}
+                                                        </span>
                                                     </li>
                                                 )}
                                                 {o.memTotal && (
                                                     <li className="list-inline-item">
-                            <span className="badge bg-warning text-dark">
-                              RAM: {o.memTotal}
-                            </span>
+                                                        <span className="badge bg-warning text-dark">
+                                                            RAM: {o.memTotal}
+                                                        </span>
                                                     </li>
                                                 )}
                                             </ul>
@@ -155,10 +148,7 @@ export default function OverlaysPage() {
 
                                 {/* Footer mit Buttons */}
                                 <div className="card-footer bg-transparent d-flex gap-2">
-                                    <Link
-                                        href={`/overlays/${o.path}`}
-                                        className="btn btn-outline-primary flex-fill"
-                                    >
+                                    <Link href={`/overlays/${o.path}`} className="btn btn-outline-primary flex-fill">
                                         Details
                                     </Link>
                                     <button
@@ -174,9 +164,7 @@ export default function OverlaysPage() {
                     );
                 })}
 
-                {overlays.length === 0 && (
-                    <p className="text-center text-muted">Keine Overlays gefunden.</p>
-                )}
+                {overlays.length === 0 && <p className="text-center text-muted">Keine Overlays gefunden.</p>}
             </div>
         </div>
     );

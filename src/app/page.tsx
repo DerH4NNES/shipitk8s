@@ -1,12 +1,6 @@
-"use client";
+'use client';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useEffect, useState } from 'react';
-
-interface Variable {
-    name: string;
-    type: string;
-    default: any;
-}
 
 interface Service {
     name: string;
@@ -51,10 +45,7 @@ export default function Home() {
         }
     };
 
-    const handleDeploy = async (
-        serviceName: string,
-        values: Record<string, any> = {}
-    ) => {
+    const handleDeploy = async (serviceName: string, values: Record<string, any> = {}) => {
         setLoading((prev) => ({ ...prev, [serviceName]: true }));
         setMessage('');
         try {
@@ -127,18 +118,10 @@ export default function Home() {
                                 ))}
                             </div>
                             <div className="modal-footer">
-                                <button
-                                    type="button"
-                                    className="btn btn-secondary"
-                                    onClick={() => setShowModal(false)}
-                                >
+                                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
                                     Abbrechen
                                 </button>
-                                <button
-                                    type="button"
-                                    className="btn btn-primary"
-                                    onClick={handleConfirm}
-                                >
+                                <button type="button" className="btn btn-primary" onClick={handleConfirm}>
                                     Deploy
                                 </button>
                             </div>

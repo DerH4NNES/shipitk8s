@@ -55,28 +55,25 @@ export async function GET() {
 
         // PVCs extrahieren
         const pvcs = docs
-            .filter(d => d.kind === 'PersistentVolumeClaim')
-            .map(d => ({
+            .filter((d) => d.kind === 'PersistentVolumeClaim')
+            .map((d) => ({
                 name: d.metadata.name,
-                storage: d.spec.resources.requests.storage as string
+                storage: d.spec.resources.requests.storage as string,
             }));
 
         // Ingresses extrahieren
         const ingresses = docs
-            .filter(d => d.kind === 'Ingress')
-            .map(d => ({
+            .filter((d) => d.kind === 'Ingress')
+            .map((d) => ({
                 name: d.metadata.name,
-                hosts: (d.spec.rules || []).map((r: any) => r.host)
+                hosts: (d.spec.rules || []).map((r: any) => r.host),
             }));
 
         // Resource Limits aufsummieren
         let totalCpuMillicores = 0;
         let totalMemoryMi = 0;
-        docs.forEach(d => {
-            if (
-                (d.kind === 'Deployment' || d.kind === 'StatefulSet') &&
-                d.spec?.template?.spec?.containers
-            ) {
+        docs.forEach((d) => {
+            if ((d.kind === 'Deployment' || d.kind === 'StatefulSet') && d.spec?.template?.spec?.containers) {
                 d.spec.template.spec.containers.forEach((c: any) => {
                     const limits = c.resources?.limits || {};
                     // CPU
@@ -90,7 +87,7 @@ export async function GET() {
                     }
                     // Memory
                     if (limits.memory) {
-                        let mem = limits.memory.toString().toUpperCase();
+                        const mem = limits.memory.toString().toUpperCase();
                         const value = parseFloat(mem);
                         if (mem.endsWith('GI')) {
                             totalMemoryMi += value * 1024;
@@ -124,7 +121,7 @@ export async function GET() {
             pvcs,
             ingresses,
             cpuTotal: totalCpuMillicores > 0 ? cpuTotal : undefined,
-            memTotal: totalMemoryMi > 0 ? memTotal : undefined
+            memTotal: totalMemoryMi > 0 ? memTotal : undefined,
         });
     }
 
