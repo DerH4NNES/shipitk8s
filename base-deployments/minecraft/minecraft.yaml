@@ -1,0 +1,24 @@
+name: minecraft
+description: "Vanilla Minecraft Server"
+variables:
+  - name: namespace
+    type: string
+    default: "minecraft"
+  - name: replicas
+    type: number
+    default: 1
+  - name: storageSize
+    type: string
+    default: "10Gi"
+  - name: serverPort
+    type: number
+    default: 30000
+  - name: minecraftVersion
+    type: string
+    default: "latest"
+  - name: memory
+    type: string
+    default: "1G"
+  - name: eula
+    type: boolean
+    default: true
