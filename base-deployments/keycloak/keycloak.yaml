@@ -1,0 +1,30 @@
+name: keycloak
+description: "Keycloak Identity & Access Management"
+variables:
+  - name: namespace
+    type: string
+    default: "keycloak"
+  - name: replicas
+    type: number
+    default: 1
+  - name: storageSize
+    type: string
+    default: "5Gi"
+  - name: host
+    type: string
+    default: "keycloak.local"
+  - name: dbHost
+    type: string
+    default: "postgres"
+  - name: dbPort
+    type: number
+    default: 5432
+  - name: dbUser
+    type: string
+    default: "keycloak"
+  - name: dbPassword
+    type: string
+    default: "changeme"
+  - name: dbDatabase
+    type: string
+    default: "keycloak"

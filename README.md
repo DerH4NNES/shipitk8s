@@ -1,189 +1,171 @@
-# ServiceDeployer
+# 🚀 shipitk8s
 
-Ein einfaches Next.js-Tool, mit dem vordefinierte Services per Knopfdruck als Kustomize-Overlay erstellt und in ein Kubernetes-Cluster deployed werden können.
+A lightweight tool for quickly deploying preconfigured services into your Kubernetes cluster via a simple Next.js UI and Kustomize.
 
 ---
 
-## 📂 Projektstruktur
+## Table of Contents
+
+1. [Project Overview](#project-overview)
+2. [Prerequisites](#prerequisites)
+3. [Installation & Startup](#installation--startup)
+4. [Base Deployments Structure](#base-deployments-structure)
+5. [Generating an Overlay](#generating-an-overlay)
+6. [Available Services](#available-services)
+7. [Local Testing with Minikube](#local-testing-with-minikube)
+8. [Deploying an Overlay](#deploying-an-overlay)
+9. [Frontend Overview](#frontend-overview)
+10. [Adding a New Base Deployment](#adding-a-new-base-deployment)
+
+---
+
+## Project Overview
+
+`shipitk8s` lets you select from prepared **base deployments** (e.g. MariaDB, Nextcloud, Keycloak, Rocket.Chat, Minecraft, etc.), fill in configuration values, generate a Kustomize overlay and deploy it to your cluster—all with a single click.
+
+---
+
+## Prerequisites
+
+- Node.js ≥ 22 & npm
+- Docker (for Minikube or local cluster)
+- `kubectl` CLI
+- `kustomize` CLI
+- Linux or macOS (Windows tweaks are possible)
+
+---
+
+## Installation & Startup
 
 ```bash
-/ (Projekt-Root)
-├── app/                      # Next.js App-Router (Seiten, Layouts, API-Routen)
-│   ├── api/                  # API-Routen
-│   │   ├── generate/[service]/route.ts   # Overlay-Generator
-│   │   ├── services/route.ts            # Liefert alle Services und Variablen
-│   │   └── overlays/route.ts            # Liefert alle generierten Overlays
-│   ├── overlays/page.tsx      # Übersicht generierter Overlays
-│   ├── page.tsx               # Liste verfügbarer Services mit Modal
-│   └── layout.tsx             # RootLayout mit Header, Footer, Navigation
-├── base-deployments/         # Basis-Definitionen deiner Services
-│   └── <service>/            # Beispiel: `mariadb/`
-│       ├── <service>.yaml    # Metadaten und Variablen (z. B. mariadb.yaml)
-│       ├── k8s-deployment/   # Basis-Kustomize-Setup (base)
-│       │   ├── kustomization.yaml
-│       │   ├── deployment.yaml
-│       │   ├── service.yaml
-│       │   └── pvc.yaml
-│       └── patch-templates/  # Template-Patches mit Platzhaltern
-│           ├── env.yaml      # z. B. `${rootPassword}`
-│           ├── replicas.yaml
-│           └── storage.yaml
-├── generated-overlays/       # Hier legt das Tool neue Overlays an
-├── public/                   # Statische Assets
-├── README.md                 # Dieses Dokument
-├── package.json
-└── tsconfig.json
+git clone https://github.com/DerH4NNES/shipitk8s.git
+cd shipitk8s
+npm install
+npm run dev
+```
+
+The UI will be available at `http://localhost:3000`.
+
+---
+
+## Base Deployments Structure
+
+Under `base-deployments/` you define one folder per service:
+
+```
+base-deployments/
+├── mariadb/
+│   ├── mariadb.yaml
+│   └── k8s-deployment/
+│       ├── kustomization.yaml
+│       ├── deployment.yaml
+│       ├── service.yaml
+│       ├── pvc.yaml
+│       └── patch-templates/
+│           ├── deployment-patch.yaml
+│           ├── storage.yaml
+│           └── ingress-patch.yaml
+├── nextcloud/
+│   └── … (similar)
+├── keycloak/
+│   └── …
+└── postgres/
+    └── …
+```
+
+- **`<service>.yaml`**: metadata and variable definitions
+- **`k8s-deployment/`**: base resources (Deployment/StatefulSet, Service, PVC, Ingress)
+- **`patch-templates/`**: Kustomize strategic-merge patches for env vars, replicas, storage, ingress host
+
+---
+
+## Generating an Overlay
+
+1. Click **“Deploy Service”** in the UI
+2. Select a service
+3. Fill in the variables in the modal
+4. Click **“Generate”**
+5. The API creates `generated-overlays/<service>-<timestamp>/`
+6. Inside you’ll find:
+   - `namespace.yaml`
+   - `secret.yaml` (if a database secret is needed)
+   - rendered patch templates
+   - `kustomization.yaml`
+   - `all.yaml` (output of `kustomize build`)
+
+---
+
+## Available Services
+
+- **mariadb** – MariaDB with PVC & Secret
+- **nextcloud** – Nextcloud file sharing + Ingress
+- **keycloak** – Keycloak IDAM with embedded PostgreSQL folder
+- **rocket.chat** – Rocket.Chat with MongoDB
+- **minecraft** – Vanilla Minecraft server (NodePort)
+- …and more popular OSS stacks
+
+---
+
+## Local Testing with Minikube
+
+```bash
+# 1. Start Minikube with Docker driver and enable addons
+minikube start --driver=docker
+minikube addons enable ingress
+minikube addons enable dashboard
+
+# 2. Add host entries to /etc/hosts:
+#    $(minikube ip) nextcloud.local keycloak.local chat.local minecraft.local
+
+# 3. Start the Next.js dev server
+npm run dev
+
+# 4. In the UI, generate an overlay and deploy it
+```
+
+Open the Kubernetes Dashboard:
+
+```bash
+minikube dashboard
 ```
 
 ---
 
-## 🚀 Installation und Start
+## Deploying an Overlay
 
-1. **Voraussetzungen**
+Either use the **Deploy** button in the UI or run:
 
-    - Node.js (>=18)
-    - Yarn oder npm
+```bash
+kubectl apply -k generated-overlays/<service>-<timestamp>
+```
 
-2. **Dependencies installieren**
+Verify:
 
-   ```bash
-   yarn install
-   # oder: npm install
-   ```
-
-3. **Development-Server starten**
-
-   ```bash
-   yarn dev
-   # http://localhost:3000
-   ```
-
-4. **Production-Build**
-
-   ```bash
-   yarn build
-   yarn start
-   ```
+```bash
+kubectl get all -n <namespace>
+kubectl get pvc,ingress -n <namespace>
+```
 
 ---
 
-## 🛠️ Workflow
+## Frontend Overview
 
-1. **Services anzeigen**
-    - Besuche `/` und wähle einen Service aus.
-2. **Service konfigurieren**
-    - Klicke auf **Bereitstellen**. Ein Modal öffnet sich mit allen konfigurierbaren Variablen.
-3. **Overlay generieren & deployen**
-    - Nach Bestätigung erstellt die App im Ordner `generated-overlays/<service>-<timestamp>/`
-    - Enthält `kustomization.yaml`, `namespace.yaml` und alle Patch-Dateien.
-4. **Übersicht**
-    - Unter `/overlays` werden alle bestehenden Overlays aufgelistet und können direkt geöffnet werden.
+- **Card layout** showing service name, relative timestamp (hover for exact date)
+- **Badges** for namespace, PVCs, ingress hosts, CPU/RAM limits
+- **Buttons**: Details & Deploy
 
 ---
 
-## ➕ Neue Basis-Deployments anlegen
+## Adding a New Base Deployment
 
-Um einen weiteren Service (z. B. Redis, PostgreSQL, Nextcloud) hinzuzufügen, folge diesen Schritten:
-
-1. **Ordner anlegen**
-
-   ```bash
-   mkdir -p base-deployments/<service>
-   ```
-
-2. **Metadaten-Datei**
-
-    - Erstelle `base-deployments/<service>/<service>.yaml` mit folgendem Format:
-
-      ```yaml
-      name: <service>
-      description: "Kurzbeschreibung des Services"
-      variables:
-        - name: namespace
-          type: string
-          default: "default"
-        - name: rootPassword
-          type: string
-          default: "changeme"
-        - name: storageSize
-          type: string
-          default: "5Gi"
-        - name: replicas
-          type: number
-          default: 1
-      ```
-
-    - `` und `` werden im Frontend angezeigt.
-
-    - `` definiert die Felder, die im Deploy-Modal erscheinen, und legt Typ, Namen und Default-Wert fest.
-
-3. **K8s-Basis-Setup**
-
-    - Unter `base-deployments/<service>/k8s-deployment/` legst du alle YAML-Ressourcen als Basis an:
-        - `deployment.yaml`, `service.yaml`, `pvc.yaml`, etc.
-        - `kustomization.yaml` mit:
-          ```yaml
-          apiVersion: kustomize.config.k8s.io/v1beta1
-          kind: Kustomization
-          resources:
-            - deployment.yaml
-            - service.yaml
-            - pvc.yaml
-          ```
-
-4. **Patch-Templates**
-
-    - Lege im Ordner `base-deployments/<service>/patch-templates/` **beliebig viele** YAML-Dateien an. Jede Datei wird automatisch als Template gerendert.
-
-    - **Platzhalter-Syntax**: Nutze `` in deinen Templates, um Werte aus der Metadaten-Datei (`<service>.yaml`) zu referenzieren. Zusätzlich steht `` für den Service-Namen.
-
-    - **Verfügbare Variablen**: Alle Einträge aus `variables` sowie `name` werden beim Rendern übergeben. Zum Beispiel:
-
-      ```yaml
-      # env.yaml
-      apiVersion: v1
-      kind: Secret
-      metadata:
-        name: ${name}-secret        # Service-spezifischer Name
-        labels:
-          app: ${name}
-      type: Opaque
-      stringData:
-        MARIADB_ROOT_PASSWORD: "${rootPassword}"  # Wert aus variables
-      ```
-
-    - **Typkonvertierung**: Der Generator behandelt alle Werte als Strings. Bei numerischen Feldern (`type: number`) liefert dein Modal eine Zahl, die automatisch interpoliert wird:
-
-      ```yaml
-      # replicas.yaml
-      apiVersion: apps/v1
-      kind: Deployment
-      metadata:
-        name: ${name}
-      spec:
-        replicas: ${replicas}        # z. B. 2
-      ```
-
-    - **RegEx**: Die App nutzt `lodash-es.template` mit dem Muster `/\$\{([\s\S]+?)\}/g`, um alle `${...}`-Platzhalter aufzulösen.
-
-    - **Automatische Erkennung**: Jede `.yaml`/`.yml`-Datei in `patch-templates/` wird beim Generieren gefunden und gerendert – keine manuellen Einträge nötig.
-
-5. **Fertig!**
-
-    - Dein neuer Service und alle Patches erscheinen nach einem Reload von `/api/services` und `/` automatisch im Frontend.
+1. Create `base-deployments/<service>/`
+2. Add `<service>.yaml` with metadata and variables
+3. Create `k8s-deployment/`:
+   - Deployment or StatefulSet, Service, PVC, Ingress
+4. Create `patch-templates/`:
+   - Patches for env vars, replicas, storage size, ingress host
+5. Test in the UI by generating and deploying the overlay
 
 ---
 
-## 🔒 Sicherheitshinweise
-
-- **Secrets**: Achte darauf, dass Passwörter und sensible Daten nicht im Git-Repo verbleiben.
-- **kubectl**: Wenn Du direkt aus der App deployst, stelle sicher, dass das Backend nur im internen Netzwerk erreichbar ist.
-
----
-
-## 📖 Weiterführende Links
-
-- [Next.js App Router](https://nextjs.org/docs/app)
-- [Kustomize Documentation](https://kustomize.io/)
-- [Bootstrap 5](https://getbootstrap.com/)
-
+*This README covers all key steps—from defining base deployments to local testing and deployment.*  
