@@ -15,6 +15,17 @@ spec:
       containers:
         - name: keycloak
           image: quay.io/keycloak/keycloak:latest
+          env:
+            - name: KEYCLOAK_ADMIN
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: adminUser
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: adminPassword
           args:
             - start-dev
           ports:

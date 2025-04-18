@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres
+  labels:
+    app: postgres
 spec:
   replicas: 1
   selector:
@@ -19,11 +21,20 @@ spec:
             - containerPort: 5432
           env:
             - name: POSTGRES_USER
-              value: "${dbUser}"
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: dbUser
             - name: POSTGRES_PASSWORD
-              value: "${dbPassword}"
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: dbPassword
             - name: POSTGRES_DB
-              value: "${dbDatabase}"
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: dbDatabase
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data

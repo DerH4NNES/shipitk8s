@@ -28,3 +28,9 @@ variables:
   - name: dbDatabase
     type: string
     default: "keycloak"
+  - name: adminUser
+    type: string
+    default: "keycloak"
+  - name: adminPassword
+    type: string
+    default: "keycloak"
