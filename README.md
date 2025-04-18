@@ -37,6 +37,32 @@ A lightweight tool for quickly deploying preconfigured services into your Kubern
 
 ## Installation & Startup
 
+Before starting the app, you need a running Keycloak instance and a configured client:
+
+1. **Start Keycloak**
+   - Spin up a Keycloak server (e.g. via Docker Compose or your cluster).
+   - Make sure it’s accessible at `http://localhost:8080` (or adjust URLs below).
+
+2. **Configure Keycloak**
+   - Log in to the Admin Console at `http://localhost:8080` with your admin credentials.
+   - Create a new Realm (e.g. `demo`).
+   - Under **Clients**, add a client with:
+      - **Client ID**: `nextjs-app`
+      - **Root URL**: `http://localhost:3000`
+      - **Valid Redirect URIs**: `http://localhost:3000/*`
+   - Copy the **Client Secret** from the client’s **Credentials** tab.
+
+3. **Environment Variables**  
+   Create a file named `.env.local` in your project root with the following entries (replace placeholders):
+   ```env
+   NEXTAUTH_URL=http://localhost:3000
+   NEXTAUTH_SECRET=<your-random-32-byte-secret>
+   KEYCLOAK_ISSUER=http://localhost:8080/realms/demo
+   KEYCLOAK_CLIENT_ID=nextjs-app
+   KEYCLOAK_CLIENT_SECRET=<the-client-secret-you-copied>
+
+
+4. **Run ShipIt**
 ```bash
 git clone https://github.com/DerH4NNES/shipitk8s.git
 cd shipitk8s
