@@ -1,0 +1,12 @@
+name: mongodb
+description: "MongoDB Datenbank"
+variables:
+  - name: namespace
+    type: string
+    default: "mongodb"
+  - name: storageSize
+    type: string
+    default: "5Gi"
+  - name: replicas
+    type: number
+    default: 1

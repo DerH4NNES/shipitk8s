@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rocketchat-ingress
+spec:
+  rules:
+    - host: "${host}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rocketchat
+                port:
+                  number: 80

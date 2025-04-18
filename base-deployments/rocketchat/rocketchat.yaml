@@ -1,0 +1,15 @@
+name: rocketchat
+description: "Rocket.Chat Chatserver"
+variables:
+  - name: namespace
+    type: string
+    default: "rocketchat"
+  - name: replicas
+    type: number
+    default: 1
+  - name: storageSize
+    type: string
+    default: "10Gi"
+  - name: host
+    type: string
+    default: "chat.local"

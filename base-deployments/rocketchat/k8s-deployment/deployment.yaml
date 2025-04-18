@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rocketchat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rocketchat
+  template:
+    metadata:
+      labels:
+        app: rocketchat
+    spec:
+      containers:
+        - name: rocketchat
+          image: rocketchat/rocket.chat:latest
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - name: data
+              mountPath: /app/uploads
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: rocketchat-pvc
