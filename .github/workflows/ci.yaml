@@ -1,5 +1,11 @@
-# .github/workflows/ci.yml
 name: CI
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  actions: read
+  id-token: write
 
 on:
   push:
