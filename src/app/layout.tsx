@@ -5,7 +5,7 @@ import { Metadata } from 'next';
 import { AuthProvider } from '@/components/AuthProvider';
 import { Header } from '@/components/Header';
 import { Container } from 'react-bootstrap';
-import {BreadcrumbNav} from '@/components/BreadcrumbNav';
+import { BreadcrumbNav } from '@/components/BreadcrumbNav';
 
 export const metadata: Metadata = {
     title: 'Service Deployer',

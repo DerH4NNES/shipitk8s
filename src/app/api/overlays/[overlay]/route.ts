@@ -1,5 +1,4 @@
-// app/api/overlays/[overlay]/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 import yaml from 'js-yaml';
@@ -36,8 +35,8 @@ interface OverlayDetail {
     rawYaml: string;
 }
 
-export async function GET(_req: Request, context: { params: { overlay: string } }) {
-    const { overlay } = await context.params;
+export async function GET(request: NextRequest, context: any) {
+    const { overlay } = (await context.params) as { overlay: string };
     const filePath = path.join(process.cwd(), 'generated-overlays', overlay, 'all.yaml');
 
     try {

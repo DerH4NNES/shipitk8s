@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 
-export async function GET(_req: Request, context: { params: { project: string } }) {
-    const { project } = await context.params;
+export async function GET(request: NextRequest, context: any) {
+    const { project } = (await context.params) as { project: string };
     const projDir = path.join(process.cwd(), 'generated-overlays', project);
 
     try {

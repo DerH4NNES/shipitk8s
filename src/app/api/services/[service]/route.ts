@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 import yaml from 'js-yaml';
 
-export async function GET(_req: Request, context: { params: { service: string } }) {
-    const { service } = await context.params;
+export async function GET(request: NextRequest, context: any) {
+    const { service } = (await context.params) as { service: string };
     const yamlPath = path.join(process.cwd(), 'base-deployments', service, `${service}.yaml`);
 
     try {

@@ -31,11 +31,7 @@ export function BreadcrumbNav() {
                             className={`breadcrumb-item${isLast ? ' active' : ''}`}
                             aria-current={isLast ? 'page' : undefined}
                         >
-                            {isLast ? (
-                                label
-                            ) : (
-                                <Link href={href!}>{label}</Link>
-                            )}
+                            {isLast ? label : <Link href={href!}>{label}</Link>}
                         </li>
                     );
                 })}

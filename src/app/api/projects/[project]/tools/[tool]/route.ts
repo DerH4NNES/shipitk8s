@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 import { generateOverlay } from '@/lib/generateOverlay';
 
-export async function POST(req: Request, context: { params: { project: string; tool: string } }) {
-    const { project, tool } = await context.params;
+export async function POST(req: NextRequest, context: any) {
+    const { project, tool } = (await context.params) as { project: string; tool: string };
     const body = await req.json();
 
     const projDir = path.join(process.cwd(), 'generated-overlays', project);

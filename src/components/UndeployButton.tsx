@@ -1,5 +1,5 @@
-import {useState} from 'react';
-import {Button} from 'react-bootstrap';
+import { useState } from 'react';
+import { Button } from 'react-bootstrap';
 
 interface UndeployButtonProps {
     overlayPath: string;
@@ -7,11 +7,7 @@ interface UndeployButtonProps {
     onError: (err: string) => void;
 }
 
-export function UndeployButton({
-                                   overlayPath,
-                                   onSuccess,
-                                   onError,
-                               }: UndeployButtonProps) {
+export function UndeployButton({ overlayPath, onSuccess, onError }: UndeployButtonProps) {
     const [loading, setLoading] = useState(false);
 
     const handleUndeploy = async () => {

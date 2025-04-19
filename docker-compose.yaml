@@ -1,0 +1,25 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env.local
+    network_mode: host
+    volumes:
+      - .:/app:delegated
+      - /app/node_modules
+    command: npm start
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command:
+      - start-dev
+    network_mode: host
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+volumes:
+  keycloak_data:

@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 import yaml from 'js-yaml';
 
-export async function GET(_req: Request, context: { params: { project: string; overlay: string } }) {
-    const { project, overlay } = await context.params;
+export async function GET(request: NextRequest, context: any) {
+    const { project, overlay } = (await context.params) as { project: string; overlay: string };
     const filePath = path.join(process.cwd(), 'generated-overlays', project, overlay, 'all.yaml');
 
     try {
