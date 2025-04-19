@@ -80,8 +80,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:v${{ steps.semantic.outputs.release-version }}
-            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/derh4nnes/ship-it-k8s:v${{ steps.semantic.outputs.release-version }}
+            ghcr.io/derh4nnes/ship-it-k8s:latest
           platforms: |
             linux/amd64
             linux/arm64
