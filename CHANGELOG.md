@@ -1,3 +1,12 @@
+## [1.1.2](https://github.com/derh4nnes/shipitk8s/compare/v1.1.1...v1.1.2) (2025-04-19)
+
+
+### Bug Fixes
+
+* added standalone config ([d75088c](https://github.com/derh4nnes/shipitk8s/commit/d75088c2be7676565f6bd21d56399d178df6b4f9))
+* fixed build, added docker-compose ([b52682a](https://github.com/derh4nnes/shipitk8s/commit/b52682a8e65e07d08349ed8d9239a84b8177296e))
+* fixed eslint ([8190c63](https://github.com/derh4nnes/shipitk8s/commit/8190c63a5f487bd2a9218ad850d467b93c463abf))
+
 ## [1.1.1](https://github.com/derh4nnes/shipitk8s/compare/v1.1.0...v1.1.1) (2025-04-19)
 
 
