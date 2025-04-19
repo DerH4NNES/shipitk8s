@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/derh4nnes/shipitk8s/compare/v1.1.0...v1.1.1) (2025-04-19)
+
+
+### Bug Fixes
+
+* Updated tags ([1039f86](https://github.com/derh4nnes/shipitk8s/commit/1039f867ac3fab2d4b45f73bbe1a1836602196b1))
+
 # [1.1.0](https://github.com/derh4nnes/shipitk8s/compare/v1.0.1...v1.1.0) (2025-04-19)
 
 
