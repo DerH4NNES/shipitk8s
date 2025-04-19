@@ -1,53 +1,50 @@
-// components/Header.tsx
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { Navbar, Nav, Container, Button } from 'react-bootstrap';
 import { signIn, signOut, useSession } from 'next-auth/react';
+import { useState, useEffect } from 'react';
 
 export function Header() {
     const { data: session, status } = useSession();
+    const pathname = usePathname();
+
+    // verhindern, dass active schon auf dem Server gerendert wird
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     return (
-        <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-            <div className="container">
-                <Link href="/" className="navbar-brand">
+        <Navbar bg="dark" variant="dark" expand="lg">
+            <Container>
+                <Navbar.Brand as={Link} href="/projects">
                     ServiceDeployer
-                </Link>
-                <div className="collapse navbar-collapse">
-                    <ul className="navbar-nav me-auto">
-                        <li className="nav-item">
-                            <Link href="/" className="nav-link">
-                                Services
-                            </Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link href="/overlays" className="nav-link">
-                                Overlays
-                            </Link>
-                        </li>
-                    </ul>
-                    <ul className="navbar-nav ms-auto">
+                </Navbar.Brand>
+                <Navbar.Toggle aria-controls="navbar-nav" />
+                <Navbar.Collapse id="navbar-nav">
+                    <Nav className="me-auto">
+                        <Nav.Link as={Link} href="/projects" active={mounted && pathname === '/projects'}>
+                            Projects
+                        </Nav.Link>
+                    </Nav>
+                    <Nav>
                         {status === 'loading' ? null : session ? (
                             <>
-                                <li className="nav-item">
-                                    <span className="navbar-text me-3">Hi, {session.user?.name}</span>
-                                </li>
-                                <li className="nav-item">
-                                    <button className="btn btn-outline-light" onClick={() => signOut()}>
-                                        Logout
-                                    </button>
-                                </li>
+                                <Navbar.Text className="me-3">Hi, {session.user?.name}</Navbar.Text>
+                                <Button variant="outline-light" onClick={() => signOut()}>
+                                    Logout
+                                </Button>
                             </>
                         ) : (
-                            <li className="nav-item">
-                                <button className="btn btn-outline-light" onClick={() => signIn()}>
-                                    Login
-                                </button>
-                            </li>
+                            <Button variant="outline-light" onClick={() => signIn()}>
+                                Login
+                            </Button>
                         )}
-                    </ul>
-                </div>
-            </div>
-        </nav>
+                    </Nav>
+                </Navbar.Collapse>
+            </Container>
+        </Navbar>
     );
 }

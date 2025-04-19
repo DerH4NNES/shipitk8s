@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Container, Row, Col, Card, ListGroup, Badge, Table, Accordion, Spinner, Button } from 'react-bootstrap';
 import moment from 'moment';
-import 'moment/locale/de';
 
 interface PVC {
     name: string;

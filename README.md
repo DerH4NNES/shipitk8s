@@ -16,6 +16,7 @@ A lightweight tool for quickly deploying preconfigured services into your Kubern
 8. [Deploying an Overlay](#deploying-an-overlay)
 9. [Frontend Overview](#frontend-overview)
 10. [Adding a New Base Deployment](#adding-a-new-base-deployment)
+11. [Projects Workflow](#projects-workflow)
 
 ---
 
@@ -195,3 +196,38 @@ kubectl get pvc,ingress -n <namespace>
 ---
 
 *This README covers all key steps—from defining base deployments to local testing and deployment.*  
+
+## Projects Workflow
+
+With the new Projects feature, you can group one or more services (tools) into logical **Projects**, each representing its own Kubernetes namespace.
+
+1. **Projects Overview** (`/projects`)
+   - Lists all existing projects (folders under `generated-overlays/`).
+   - Click **“View Project”** to see its deployed tools.
+   - **Create Project** opens a modal to enter a slug (lowercase + hyphens) and display name.
+
+2. **Project Detail** (`/projects/[project]`)
+   - Shows all tools currently deployed in this project.
+   - **Add Tool** button opens a modal:
+      - Select from available services (pulled via `/api/services`).
+      - Fill in the service’s configuration variables.
+      - Click **Deploy** to generate and apply the overlay.
+   - Each tool card links to its **Overlay Detail**.
+
+3. **Overlay Detail** (`/projects/[project]/overlays/[overlay]`)
+   - Comprehensive view of one overlay:
+      - **Deployments**, **Services**, **PVCs**, **Ingress** sections.
+      - Summed CPU & RAM limits.
+      - Raw `all.yaml` in an accordion.
+      - **Back to Project** button.
+
+4. **API Endpoints**
+   - `GET /api/projects`
+   - `POST /api/projects`
+   - `GET /api/projects/[project]/tools`
+   - `POST /api/projects/[project]/tools/[tool]`
+   - `GET /api/services`
+   - `GET /api/services/[service]`
+   - `POST /api/generate/[service]`
+
+This workflow ensures that each project maps to its own namespace and folder under `generated-overlays/<project>/`, keeping your deployments organized and isolated.  
