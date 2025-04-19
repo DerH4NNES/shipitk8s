@@ -5,6 +5,7 @@ import { Metadata } from 'next';
 import { AuthProvider } from '@/components/AuthProvider';
 import { Header } from '@/components/Header';
 import { Container } from 'react-bootstrap';
+import {BreadcrumbNav} from '@/components/BreadcrumbNav';
 
 export const metadata: Metadata = {
     title: 'Service Deployer',
@@ -15,11 +16,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     return (
         <html lang="en">
             <body className="d-flex flex-column min-vh-100">
-                {/* AuthProvider (wrappt SessionProvider) */}
                 <AuthProvider>
-                    {/* Ausgelagerter Header mit React‑Bootstrap */}
                     <Header />
-
+                    <BreadcrumbNav />
                     {/* Main Content */}
                     <Container className="flex-grow-1 my-4">{children}</Container>
                 </AuthProvider>

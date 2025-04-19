@@ -8,3 +8,11 @@
     box-shadow 0.2s ease-in-out,
     transform 0.1s ease-in-out;
 }
+
+.wrapper {
+  /* Wrapper uses Bootstrap utility classes in JSX, no SCSS imports needed */
+  /* Additional custom styles if desired */
+  background-color: rgba(248, 249, 250, 0.8); /* Bootstrap's bg-light with opacity */
+  border-radius: 0.75rem; /* similar to rounded-lg */
+  margin-bottom: 1rem; /* mb-3 */
+}
