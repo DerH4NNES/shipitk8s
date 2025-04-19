@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/derh4nnes/shipitk8s/compare/v1.1.2...v1.1.3) (2025-04-19)
+
+
+### Bug Fixes
+
+* added packages write permission ([07f6f3c](https://github.com/derh4nnes/shipitk8s/commit/07f6f3cfa7228f701b36a2580d28b58ab6923b98))
+
 ## [1.1.2](https://github.com/derh4nnes/shipitk8s/compare/v1.1.1...v1.1.2) (2025-04-19)
 
 
