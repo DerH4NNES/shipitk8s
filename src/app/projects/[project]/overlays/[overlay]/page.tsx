@@ -4,64 +4,53 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Container, Row, Col, Card, ListGroup, Badge, Table, Accordion, Spinner, Button } from 'react-bootstrap';
 import moment from 'moment';
+import 'moment/locale/de';
+import { ToolDeployModal } from '@/components/ToolDeployModal';
 
-interface PVC {
-    name: string;
-    storage: string;
-}
-interface IngressInfo {
-    name: string;
-    hosts: string[];
-}
-interface ServiceInfo {
-    name: string;
-    type: string;
-    ports: { port: number; targetPort: number }[];
-}
-interface DeploymentInfo {
-    name: string;
-    replicas: number;
-    containers: { name: string; image: string }[];
-}
 interface OverlayDetail {
-    service: string;
-    path: string;
+    project: string;
+    overlay: string;
     namespace: string;
     createdAt: number;
-    pvcs?: PVC[];
-    ingresses?: IngressInfo[];
-    services?: ServiceInfo[];
-    deployments?: DeploymentInfo[];
-    cpuTotal?: string;
-    memTotal?: string;
+    pvcs: { name: string; storage: string }[];
+    ingresses: { name: string; hosts: string[] }[];
+    services: { name: string; type: string; ports: { port: number; targetPort: number }[] }[];
+    deployments: { name: string; replicas: number; containers: { name: string; image: string }[] }[];
     rawYaml: string;
 }
 
-export default function OverlayDetailPage() {
-    const { overlay } = useParams<{ overlay: string }>();
+export default function OverlayInProjectPage() {
+    const { project, overlay } = useParams<{ project: string; overlay: string }>();
+    const tool = overlay.split('-')[0];
+    const [showDeploy, setShowDeploy] = useState(false);
+
     const router = useRouter();
     const [data, setData] = useState<OverlayDetail | null>(null);
     const [loading, setLoading] = useState(true);
 
+    const handleDeployed = (newOverlayPath: string) => {
+        console.log(project, newOverlayPath, `/projects/${project}/overlays/${newOverlayPath}`);
+        router.push(`/projects/${newOverlayPath}`);
+    };
+
     useEffect(() => {
-        if (!overlay) return;
-        fetch(`/api/overlays/${overlay}`)
+        if (!project || !overlay) return;
+        fetch(`/api/projects/${project}/overlays/${overlay}`)
             .then((res) => res.json())
             .then((json) => {
                 if (json.error) {
-                    router.push('/overlays');
+                    router.push(`/projects/${project}`);
                 } else {
                     setData(json as OverlayDetail);
                 }
             })
-            .catch(() => router.push('/overlays'))
             .finally(() => setLoading(false));
-    }, [overlay, router]);
+    }, [project, overlay, router]);
 
     if (loading) {
         return (
             <Container className="py-5 text-center">
-                <Spinner animation="border" role="status" />
+                <Spinner animation="border" />
             </Container>
         );
     }
@@ -73,49 +62,26 @@ export default function OverlayDetailPage() {
         );
     }
 
-    // Destructure mit Defaults
-    const {
-        service,
-        path,
-        namespace,
-        createdAt,
-        pvcs = [],
-        ingresses = [],
-        services = [],
-        deployments = [],
-        cpuTotal,
-        memTotal,
-        rawYaml,
-    } = data;
-
-    const rel = moment(createdAt).fromNow();
+    const { namespace, createdAt, pvcs, ingresses, services, deployments, rawYaml } = data;
     const exact = moment(createdAt).format('LLLL');
+    const rel = moment(createdAt).fromNow();
 
     return (
         <Container className="py-4">
             <Row className="mb-3">
                 <Col>
-                    <h2>
-                        {service} <small className="text-muted">({path})</small>
-                    </h2>
+                    <h3>
+                        {overlay} <small className="text-muted">in project {project}</small>
+                    </h3>
                     <p>
                         Namespace: <Badge bg="info">{namespace}</Badge> Created: <small title={exact}>{rel}</small>
                     </p>
-                    {(cpuTotal || memTotal) && (
-                        <p>
-                            Resources:{' '}
-                            {cpuTotal && (
-                                <Badge bg="warning" text="dark" className="me-1">
-                                    CPU {cpuTotal}
-                                </Badge>
-                            )}
-                            {memTotal && (
-                                <Badge bg="warning" text="dark">
-                                    RAM {memTotal}
-                                </Badge>
-                            )}
-                        </p>
-                    )}
+                </Col>
+                <Col xs="auto">
+                    <Button onClick={() => setShowDeploy(true)}>Regenerate</Button>
+                </Col>
+                <Col xs="auto">
+                    <Button onClick={() => handleDeployed}>Deploy</Button>
                 </Col>
             </Row>
 
@@ -125,7 +91,7 @@ export default function OverlayDetailPage() {
                     <Card className="mb-3">
                         <Card.Header>Deployments</Card.Header>
                         <ListGroup variant="flush">
-                            {deployments.length > 0 ? (
+                            {deployments.length ? (
                                 deployments.map((d) => (
                                     <ListGroup.Item key={d.name}>
                                         <strong>{d.name}</strong> — replicas: {d.replicas}
@@ -161,7 +127,7 @@ export default function OverlayDetailPage() {
                     <Card className="mb-3">
                         <Card.Header>Services</Card.Header>
                         <ListGroup variant="flush">
-                            {services.length > 0 ? (
+                            {services.length ? (
                                 services.map((s) => (
                                     <ListGroup.Item key={s.name}>
                                         <strong>{s.name}</strong> — {s.type}
@@ -188,7 +154,7 @@ export default function OverlayDetailPage() {
                     <Card>
                         <Card.Header>PVCs</Card.Header>
                         <ListGroup variant="flush">
-                            {pvcs.length > 0 ? (
+                            {pvcs.length ? (
                                 pvcs.map((p) => (
                                     <ListGroup.Item key={p.name}>
                                         {p.name} <Badge bg="secondary">{p.storage}</Badge>
@@ -206,7 +172,7 @@ export default function OverlayDetailPage() {
                     <Card>
                         <Card.Header>Ingress</Card.Header>
                         <ListGroup variant="flush">
-                            {ingresses.length > 0 ? (
+                            {ingresses.length ? (
                                 ingresses.map((i) => (
                                     <ListGroup.Item key={i.name}>
                                         <strong>{i.name}</strong>
@@ -245,11 +211,18 @@ export default function OverlayDetailPage() {
 
             <Row className="mt-4">
                 <Col>
-                    <Button variant="secondary" onClick={() => router.push('/overlays')}>
-                        ← Back to overview
+                    <Button variant="secondary" onClick={() => router.push(`/projects/${project}`)}>
+                        ← Back to Project
                     </Button>
                 </Col>
             </Row>
+            <ToolDeployModal
+                project={project!}
+                tool={tool}
+                show={showDeploy}
+                onHide={() => setShowDeploy(false)}
+                onDeployed={handleDeployed}
+            />
         </Container>
     );
 }

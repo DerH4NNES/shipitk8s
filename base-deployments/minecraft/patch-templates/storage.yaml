@@ -3,6 +3,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: minecraft-pvc
 spec:
+  accessModes:
+    - ReadWriteOnce
   resources:
     requests:
       storage: ${storageSize}

@@ -3,7 +3,6 @@
 
 import Link from 'next/link';
 import moment from 'moment';
-import 'moment/locale/de';
 import { MouseEvent, ReactNode } from 'react';
 
 export interface PVC {
