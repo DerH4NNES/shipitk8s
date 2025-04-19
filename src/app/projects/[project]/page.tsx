@@ -144,7 +144,7 @@ export default function ProjectDetailPage() {
             {/* Add Tool Modal */}
             <Modal show={showAdd} onHide={() => setShowAdd(false)} size="lg">
                 <Modal.Header closeButton>
-                    <Modal.Title>Add Tool to project &quot;{project}&quot;</Modal.Title>
+                    <Modal.Title>Add Tool to project "{project}"</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>

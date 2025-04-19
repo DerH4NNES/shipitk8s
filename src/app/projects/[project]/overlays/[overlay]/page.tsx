@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Container, Row, Col, Card, ListGroup, Badge, Table, Accordion, Spinner, Button } from 'react-bootstrap';
+import { Container, Row, Col, Card, ListGroup, Badge, Table, Accordion, Spinner, Button, Alert } from 'react-bootstrap';
 import moment from 'moment';
 import 'moment/locale/de';
 import { ToolDeployModal } from '@/components/ToolDeployModal';
+import {UndeployButton} from '@/components/UndeployButton';
 
 interface OverlayDetail {
     project: string;
@@ -27,10 +28,33 @@ export default function OverlayInProjectPage() {
     const router = useRouter();
     const [data, setData] = useState<OverlayDetail | null>(null);
     const [loading, setLoading] = useState(true);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     const handleDeployed = (newOverlayPath: string) => {
-        console.log(project, newOverlayPath, `/projects/${project}/overlays/${newOverlayPath}`);
-        router.push(`/projects/${newOverlayPath}`);
+        router.push(
+            `/projects/${project}/overlays/${newOverlayPath.replace(project + '/', '')}`
+        );
+    };
+
+    const handleDeploy = async (newOverlayPath: string) => {
+        setErrorMessage(null);
+        setSuccessMessage(null);
+        try {
+            const url = `/api/deploy/${encodeURIComponent(newOverlayPath)}`;
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            });
+            const json = await res.json();
+            if (!res.ok) {
+                setErrorMessage(json.error || 'Deployment failed');
+            } else {
+                setSuccessMessage('Deployment successful:\n' + (json.message || '').trim());
+            }
+        } catch (err: any) {
+            setErrorMessage(err.message || 'Unknown error during deployment');
+        }
     };
 
     useEffect(() => {
@@ -71,22 +95,58 @@ export default function OverlayInProjectPage() {
             <Row className="mb-3">
                 <Col>
                     <h3>
-                        {overlay} <small className="text-muted">in project {project}</small>
+                        {overlay}{' '}
+                        <small className="text-muted">in project {project}</small>
                     </h3>
                     <p>
-                        Namespace: <Badge bg="info">{namespace}</Badge> Created: <small title={exact}>{rel}</small>
+                        Namespace: <Badge bg="info">{namespace}</Badge>{' '}
+                        Created:{' '}
+                        <small title={exact}>{rel}</small>
                     </p>
+                </Col>
+                <Col xs="auto">
+                    <UndeployButton overlayPath={`${project}/${overlay}`} onSuccess={setSuccessMessage} onError={setErrorMessage} />
                 </Col>
                 <Col xs="auto">
                     <Button onClick={() => setShowDeploy(true)}>Regenerate</Button>
                 </Col>
                 <Col xs="auto">
-                    <Button onClick={() => handleDeployed}>Deploy</Button>
+                    <Button onClick={() => handleDeploy(`${project}/${overlay}`)}>
+                        Deploy
+                    </Button>
                 </Col>
             </Row>
 
+            {/* Success and error messages */}
+            {errorMessage && (
+                <Row className="mb-3">
+                    <Col>
+                        <Alert
+                            variant="danger"
+                            onClose={() => setErrorMessage(null)}
+                            dismissible
+                        >
+                            {errorMessage}
+                        </Alert>
+                    </Col>
+                </Row>
+            )}
+            {successMessage && (
+                <Row className="mb-3">
+                    <Col>
+                        <Alert
+                            variant="success"
+                            onClose={() => setSuccessMessage(null)}
+                            dismissible
+                        >
+                            <pre style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{successMessage}</pre>
+                        </Alert>
+                    </Col>
+                </Row>
+            )}
+
+            {/* Deployments */}
             <Row className="mb-4">
-                {/* Deployments */}
                 <Col md={6}>
                     <Card className="mb-3">
                         <Card.Header>Deployments</Card.Header>
@@ -97,26 +157,28 @@ export default function OverlayInProjectPage() {
                                         <strong>{d.name}</strong> — replicas: {d.replicas}
                                         <Table size="sm" className="mt-2 mb-0">
                                             <thead>
-                                                <tr>
-                                                    <th>Container</th>
-                                                    <th>Image</th>
-                                                </tr>
+                                            <tr>
+                                                <th>Container</th>
+                                                <th>Image</th>
+                                            </tr>
                                             </thead>
                                             <tbody>
-                                                {d.containers.map((c) => (
-                                                    <tr key={c.name}>
-                                                        <td>{c.name}</td>
-                                                        <td>
-                                                            <code>{c.image}</code>
-                                                        </td>
-                                                    </tr>
-                                                ))}
+                                            {d.containers.map((c) => (
+                                                <tr key={c.name}>
+                                                    <td>{c.name}</td>
+                                                    <td>
+                                                        <code>{c.image}</code>
+                                                    </td>
+                                                </tr>
+                                            ))}
                                             </tbody>
                                         </Table>
                                     </ListGroup.Item>
                                 ))
                             ) : (
-                                <ListGroup.Item className="text-muted">No Deployments</ListGroup.Item>
+                                <ListGroup.Item className="text-muted">
+                                    No Deployments
+                                </ListGroup.Item>
                             )}
                         </ListGroup>
                     </Card>
@@ -141,15 +203,17 @@ export default function OverlayInProjectPage() {
                                     </ListGroup.Item>
                                 ))
                             ) : (
-                                <ListGroup.Item className="text-muted">No Services</ListGroup.Item>
+                                <ListGroup.Item className="text-muted">
+                                    No Services
+                                </ListGroup.Item>
                             )}
                         </ListGroup>
                     </Card>
                 </Col>
             </Row>
 
+            {/* PVCs */}
             <Row className="mb-4">
-                {/* PVCs */}
                 <Col md={6}>
                     <Card>
                         <Card.Header>PVCs</Card.Header>
@@ -157,11 +221,14 @@ export default function OverlayInProjectPage() {
                             {pvcs.length ? (
                                 pvcs.map((p) => (
                                     <ListGroup.Item key={p.name}>
-                                        {p.name} <Badge bg="secondary">{p.storage}</Badge>
+                                        {p.name}{' '}
+                                        <Badge bg="secondary">{p.storage}</Badge>
                                     </ListGroup.Item>
                                 ))
                             ) : (
-                                <ListGroup.Item className="text-muted">No PVCs</ListGroup.Item>
+                                <ListGroup.Item className="text-muted">
+                                    No PVCs
+                                </ListGroup.Item>
                             )}
                         </ListGroup>
                     </Card>
@@ -178,7 +245,12 @@ export default function OverlayInProjectPage() {
                                         <strong>{i.name}</strong>
                                         <div className="mt-1">
                                             {i.hosts.map((h) => (
-                                                <Badge key={h} bg="light" text="dark" className="me-1">
+                                                <Badge
+                                                    key={h}
+                                                    bg="light"
+                                                    text="dark"
+                                                    className="me-1"
+                                                >
                                                     {h}
                                                 </Badge>
                                             ))}
@@ -186,7 +258,9 @@ export default function OverlayInProjectPage() {
                                     </ListGroup.Item>
                                 ))
                             ) : (
-                                <ListGroup.Item className="text-muted">No Ingress rules</ListGroup.Item>
+                                <ListGroup.Item className="text-muted">
+                                    No Ingress rules
+                                </ListGroup.Item>
                             )}
                         </ListGroup>
                     </Card>
@@ -211,11 +285,15 @@ export default function OverlayInProjectPage() {
 
             <Row className="mt-4">
                 <Col>
-                    <Button variant="secondary" onClick={() => router.push(`/projects/${project}`)}>
+                    <Button
+                        variant="secondary"
+                        onClick={() => router.push(`/projects/${project}`)}
+                    >
                         ← Back to Project
                     </Button>
                 </Col>
             </Row>
+
             <ToolDeployModal
                 project={project!}
                 tool={tool}

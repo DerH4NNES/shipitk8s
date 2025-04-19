@@ -19,20 +19,12 @@ export function Header() {
     return (
         <Navbar bg="dark" variant="dark" expand="lg">
             <Container>
-                <Navbar.Brand as={Link} href="/">
+                <Navbar.Brand as={Link} href="/projects">
                     ServiceDeployer
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="navbar-nav" />
                 <Navbar.Collapse id="navbar-nav">
                     <Nav className="me-auto">
-                        <Nav.Link
-                            as={Link}
-                            href="/"
-                            // active erst nach Client‑Mount
-                            active={mounted && pathname === '/'}
-                        >
-                            Services
-                        </Nav.Link>
                         <Nav.Link as={Link} href="/projects" active={mounted && pathname === '/projects'}>
                             Projects
                         </Nav.Link>

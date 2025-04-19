@@ -64,7 +64,7 @@ export function ToolDeployModal({ project, tool, show, onHide, onDeployed }: Too
         <Modal show={show} onHide={onHide} size="lg">
             <Modal.Header closeButton>
                 <Modal.Title>
-                    Deploy {tool} to project &quote;{project}&quote;
+                    Deploy {tool} to project "{project}"
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
