@@ -1,8 +1,6 @@
-// components/OverlayCard.tsx
 'use client';
 
 import Link from 'next/link';
-import moment from 'moment';
 import { MouseEvent, ReactNode } from 'react';
 
 export interface PVC {
@@ -18,7 +16,7 @@ export interface Overlay {
     service: string;
     path: string;
     namespace: string;
-    createdAt: number;
+    updatedAt: number;
     pvcs: PVC[];
     ingresses: IngressInfo[];
     cpuTotal?: string;
@@ -34,9 +32,6 @@ interface Props {
 }
 
 export function OverlayCard({ o, deploying, onDeploy, detailsHref, detailsLabel = 'Details' }: Props) {
-    const rel = moment(o.createdAt).fromNow();
-    const exact = moment(o.createdAt).format('LLLL');
-
     const handleClick = (e: MouseEvent) => {
         e.preventDefault();
         onDeploy(o.path);
@@ -48,9 +43,6 @@ export function OverlayCard({ o, deploying, onDeploy, detailsHref, detailsLabel 
                 {/* Header */}
                 <div className="card-header d-flex justify-content-between align-items-center">
                     <h5 className="mb-0">{o.service}</h5>
-                    <small className="text-muted" title={exact}>
-                        {rel}
-                    </small>
                 </div>
 
                 {/* Body */}

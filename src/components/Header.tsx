@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Navbar, Nav, Container, Button } from 'react-bootstrap';
+import { Button, Container, Nav, Navbar } from 'react-bootstrap';
 import { signIn, signOut, useSession } from 'next-auth/react';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export function Header() {
     const { data: session, status } = useSession();

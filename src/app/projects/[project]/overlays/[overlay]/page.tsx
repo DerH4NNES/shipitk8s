@@ -1,18 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Container, Row, Col, Card, ListGroup, Badge, Table, Accordion, Spinner, Button, Alert } from 'react-bootstrap';
-import moment from 'moment';
-import 'moment/locale/de';
-import { ToolDeployModal } from '@/components/ToolDeployModal';
-import { UndeployButton } from '@/components/UndeployButton';
+import { Accordion, Alert, Badge, Button, Card, Col, Container, ListGroup, Row, Spinner, Table } from 'react-bootstrap';
+import { ToolConfigureModal } from '@/components/ToolConfigureModal';
+import { RemoveDeploymentButton } from '@/components/RemoveDeploymentButton';
 
 interface OverlayDetail {
     project: string;
     overlay: string;
     namespace: string;
-    createdAt: number;
     pvcs: { name: string; storage: string }[];
     ingresses: { name: string; hosts: string[] }[];
     services: { name: string; type: string; ports: { port: number; targetPort: number }[] }[];
@@ -23,7 +20,7 @@ interface OverlayDetail {
 export default function OverlayInProjectPage() {
     const { project, overlay } = useParams<{ project: string; overlay: string }>();
     const tool = overlay.split('-')[0];
-    const [showDeploy, setShowDeploy] = useState(false);
+    const [showConfigure, setShowConfigure] = useState(false);
 
     const router = useRouter();
     const [data, setData] = useState<OverlayDetail | null>(null);
@@ -33,6 +30,13 @@ export default function OverlayInProjectPage() {
 
     const handleDeployed = (newOverlayPath: string) => {
         router.push(`/projects/${project}/overlays/${newOverlayPath.replace(project + '/', '')}`);
+    };
+
+    const handleDelete = (message: string) => {
+        setSuccessMessage(message);
+        setTimeout(() => {
+            router.push(`/projects/${project}`);
+        }, 3000);
     };
 
     const handleDeploy = async (newOverlayPath: string) => {
@@ -84,9 +88,7 @@ export default function OverlayInProjectPage() {
         );
     }
 
-    const { namespace, createdAt, pvcs, ingresses, services, deployments, rawYaml } = data;
-    const exact = moment(createdAt).format('LLLL');
-    const rel = moment(createdAt).fromNow();
+    const { namespace, pvcs, ingresses, services, deployments, rawYaml } = data;
 
     return (
         <Container className="py-4">
@@ -96,18 +98,18 @@ export default function OverlayInProjectPage() {
                         {overlay} <small className="text-muted">in project {project}</small>
                     </h3>
                     <p>
-                        Namespace: <Badge bg="info">{namespace}</Badge> Created: <small title={exact}>{rel}</small>
+                        Namespace: <Badge bg="info">{namespace}</Badge>
                     </p>
                 </Col>
                 <Col xs="auto">
-                    <UndeployButton
+                    <RemoveDeploymentButton
                         overlayPath={`${project}/${overlay}`}
-                        onSuccess={setSuccessMessage}
+                        onSuccess={handleDelete}
                         onError={setErrorMessage}
                     />
                 </Col>
                 <Col xs="auto">
-                    <Button onClick={() => setShowDeploy(true)}>Regenerate</Button>
+                    <Button onClick={() => setShowConfigure(true)}>Configure</Button>
                 </Col>
                 <Col xs="auto">
                     <Button onClick={() => handleDeploy(`${project}/${overlay}`)}>Deploy</Button>
@@ -266,11 +268,11 @@ export default function OverlayInProjectPage() {
                 </Col>
             </Row>
 
-            <ToolDeployModal
+            <ToolConfigureModal
                 project={project!}
                 tool={tool}
-                show={showDeploy}
-                onHide={() => setShowDeploy(false)}
+                show={showConfigure}
+                onHide={() => setShowConfigure(false)}
                 onDeployed={handleDeployed}
             />
         </Container>

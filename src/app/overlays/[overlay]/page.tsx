@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Container, Row, Col, Card, ListGroup, Badge, Table, Accordion, Spinner, Button } from 'react-bootstrap';
-import moment from 'moment';
+import { Accordion, Badge, Button, Card, Col, Container, ListGroup, Row, Spinner, Table } from 'react-bootstrap';
 
 interface PVC {
     name: string;
@@ -78,7 +77,6 @@ export default function OverlayDetailPage() {
         service,
         path,
         namespace,
-        createdAt,
         pvcs = [],
         ingresses = [],
         services = [],
@@ -88,9 +86,6 @@ export default function OverlayDetailPage() {
         rawYaml,
     } = data;
 
-    const rel = moment(createdAt).fromNow();
-    const exact = moment(createdAt).format('LLLL');
-
     return (
         <Container className="py-4">
             <Row className="mb-3">
@@ -99,7 +94,7 @@ export default function OverlayDetailPage() {
                         {service} <small className="text-muted">({path})</small>
                     </h2>
                     <p>
-                        Namespace: <Badge bg="info">{namespace}</Badge> Created: <small title={exact}>{rel}</small>
+                        Namespace: <Badge bg="info">{namespace}</Badge>
                     </p>
                     {(cpuTotal || memTotal) && (
                         <p>

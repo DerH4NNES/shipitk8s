@@ -7,18 +7,18 @@ interface UndeployButtonProps {
     onError: (err: string) => void;
 }
 
-export function UndeployButton({ overlayPath, onSuccess, onError }: UndeployButtonProps) {
+export function RemoveDeploymentButton({ overlayPath, onSuccess, onError }: UndeployButtonProps) {
     const [loading, setLoading] = useState(false);
 
     const handleUndeploy = async () => {
         setLoading(true);
         try {
-            const res = await fetch(`/api/deploy/${encodeURIComponent(overlayPath)}/undeploy`, {
+            const res = await fetch(`/api/deploy/${encodeURIComponent(overlayPath)}/remove`, {
                 method: 'POST',
             });
             const json = await res.json();
             if (!res.ok) {
-                onError(json.error || 'Undeploy failed');
+                onError(json.error || 'Remove failed');
             } else {
                 onSuccess(`Undeploy successful:\n${(json.message || '').trim()}`);
             }
@@ -31,7 +31,7 @@ export function UndeployButton({ overlayPath, onSuccess, onError }: UndeployButt
 
     return (
         <Button variant="danger" disabled={loading} onClick={handleUndeploy}>
-            {loading ? 'Undeploying…' : 'Undeploy'}
+            {loading ? 'Deleting…' : 'Delete'}
         </Button>
     );
 }

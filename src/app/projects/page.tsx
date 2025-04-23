@@ -1,17 +1,33 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Modal, Form, Spinner } from 'react-bootstrap';
+import { useEffect, useMemo, useState } from 'react';
+import { Alert, Button, Card, Col, Container, Form, Modal, Row, Spinner } from 'react-bootstrap';
 import Link from 'next/link';
+import moment from 'moment';
+
+interface ProjectMeta {
+    id: string;
+    name: string;
+    createdAt: string;
+    owner?: { name?: string };
+}
+
+const slugify = (title: string) =>
+    title
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
 
 export default function ProjectsPage() {
-    const [projects, setProjects] = useState<string[]>([]);
+    const [projects, setProjects] = useState<ProjectMeta[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
-    const [newId, setNewId] = useState('');
-    const [newName, setNewName] = useState('');
+    const [title, setTitle] = useState('');
     const [creating, setCreating] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const slug = useMemo(() => slugify(title), [title]);
 
     const fetchProjects = async () => {
         setLoading(true);
@@ -34,15 +50,14 @@ export default function ProjectsPage() {
         const res = await fetch('/api/projects', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: newId.trim(), displayName: newName.trim() }),
+            body: JSON.stringify({ id: slug }),
         });
         const json = await res.json();
         if (!res.ok) {
             setError(json.error || 'Failed to create');
         } else {
             setShowModal(false);
-            setNewId('');
-            setNewName('');
+            setTitle('');
             fetchProjects();
         }
         setCreating(false);
@@ -65,13 +80,21 @@ export default function ProjectsPage() {
                 </div>
             ) : projects.length > 0 ? (
                 <Row xs={1} sm={2} md={3} lg={4} className="g-4">
-                    {projects.map((id) => (
-                        <Col key={id}>
-                            <Card className="h-100">
+                    {projects.map((p) => (
+                        <Col key={p.id}>
+                            <Card className="h-100 hover-shadow">
                                 <Card.Body className="d-flex flex-column">
-                                    <Card.Title className="text-capitalize">{id}</Card.Title>
+                                    <Card.Title>{p.name}</Card.Title>
+                                    {p.owner?.name && (
+                                        <Card.Subtitle className="mb-1 text-muted" style={{ fontSize: '0.8rem' }}>
+                                            {p.owner.name}
+                                        </Card.Subtitle>
+                                    )}
+                                    <small className="text-muted" title={moment(p.createdAt).format('LLLL')}>
+                                        created {moment(p.createdAt).fromNow()}
+                                    </small>
                                     <div className="mt-auto">
-                                        <Link href={`/projects/${id}`} className="btn btn-primary w-100">
+                                        <Link href={`/projects/${p.id}`} className="btn btn-primary w-100 mt-2">
                                             View Project
                                         </Link>
                                     </div>
@@ -81,7 +104,7 @@ export default function ProjectsPage() {
                     ))}
                 </Row>
             ) : (
-                <p>No projects yet. Create one!</p>
+                <Alert variant="info">No projects yet. Create one!</Alert>
             )}
 
             {/* New Project Modal */}
@@ -92,29 +115,22 @@ export default function ProjectsPage() {
                 <Modal.Body>
                     <Form>
                         <Form.Group className="mb-3">
-                            <Form.Label>Project ID (lower‑case, a‑z, 0‑9, hyphens)</Form.Label>
+                            <Form.Label>Project Title</Form.Label>
                             <Form.Control
-                                value={newId}
-                                onChange={(e) => setNewId(e.target.value)}
-                                placeholder="e.g. my‑website"
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Display Name</Form.Label>
-                            <Form.Control
-                                value={newName}
-                                onChange={(e) => setNewName(e.target.value)}
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
                                 placeholder="e.g. My Website"
                             />
+                            {title && <Form.Text className="text-muted">Generated ID: {slug || '–'}</Form.Text>}
                         </Form.Group>
-                        {error && <div className="alert alert-danger">{error}</div>}
+                        {error && <Alert variant="danger">{error}</Alert>}
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowModal(false)} disabled={creating}>
                         Cancel
                     </Button>
-                    <Button onClick={handleCreate} disabled={creating || !newId || !newName}>
+                    <Button onClick={handleCreate} disabled={creating || !slug}>
                         {creating ? 'Creating…' : 'Create'}
                     </Button>
                 </Modal.Footer>

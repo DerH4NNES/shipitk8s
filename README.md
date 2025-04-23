@@ -185,7 +185,7 @@ kubectl get pvc,ingress -n <namespace>
 
 ## Adding a New Base Deployment
 
-1. Create `base-deployments/<service>/`
+1. Create `base-deployments/<service>/` (Base deployments cannot contain variables! Variables has to be set in your patch template)
 2. Add `<service>.yaml` with metadata and variables
 3. Create `k8s-deployment/`:
    - Deployment or StatefulSet, Service, PVC, Ingress

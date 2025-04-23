@@ -7,34 +7,42 @@ import { promisify } from 'util';
 
 const exec = promisify(execCb);
 
+async function loadMeta(tool: string) {
+    const svcYamlPath = path.join(process.cwd(), 'base-deployments', tool, `${tool}.yaml`);
+
+    try {
+        return yaml.load(await fs.readFile(svcYamlPath, 'utf8'));
+    } catch (e: any) {
+        return { success: false, error: `Service meta not found: ${e.message}` };
+    }
+}
+
 export async function generateOverlay(
-    service: string,
+    project: string,
+    tool: string,
     vars: Record<string, any>,
 ): Promise<{ success: true; overlay: string } | { success: false; error: string }> {
-    // 1) Service‑Metadaten laden
-    const svcYamlPath = path.join(process.cwd(), 'base-deployments', service, `${service}.yaml`);
     let svcMeta: any;
     try {
-        svcMeta = yaml.load(await fs.readFile(svcYamlPath, 'utf8'));
+        svcMeta = await loadMeta(tool);
     } catch (e: any) {
         return { success: false, error: `Service meta not found: ${e.message}` };
     }
 
     // 2) Variablen‑Mapping, Namespace aus vars.namespace
     const namespace = vars.namespace as string;
-    const allVars: Record<string, any> = { name: service, namespace };
+    const allVars: Record<string, any> = { name: tool, namespace };
     (svcMeta.variables || []).forEach((v: any) => {
         allVars[v.name] = v.name === 'namespace' ? namespace : (vars[v.name] ?? v.default);
     });
 
     // 3) Overlay‑Verzeichnis anlegen
-    const id = Date.now();
-    const overlayName = `${service}-${id}`;
-    const overlayDir = path.join(process.cwd(), 'generated-overlays', overlayName);
+    const overlayDir = path.join(process.cwd(), 'generated-overlays', project, tool);
+    console.log('create path', overlayDir);
     await fs.mkdir(overlayDir, { recursive: true });
 
     // 4) Patch‑Templates rendern
-    const tplDir = path.join(process.cwd(), 'base-deployments', service, 'patch-templates');
+    const tplDir = path.join(process.cwd(), 'base-deployments', tool, 'patch-templates');
     const files = await fs.readdir(tplDir);
     for (const file of files) {
         if (!file.match(/\.(ya?ml)$/i)) continue;
@@ -57,7 +65,7 @@ export async function generateOverlay(
         apiVersion: 'kustomize.config.k8s.io/v1beta1',
         kind: 'Kustomization',
         namespace,
-        resources: [`../../base-deployments/${service}/k8s-deployment`, 'namespace.yaml'],
+        resources: [`../../../base-deployments/${tool}/k8s-deployment`, 'namespace.yaml'],
         patches: files.filter((f) => f.endsWith('.yaml')).map((f) => ({ path: f })),
     };
     await fs.writeFile(path.join(overlayDir, 'kustomization.yaml'), yaml.dump(kustom));
@@ -66,7 +74,7 @@ export async function generateOverlay(
     try {
         const { stdout } = await exec(`kustomize build ${overlayDir}`);
         await fs.writeFile(path.join(overlayDir, 'all.yaml'), stdout);
-        return { success: true, overlay: overlayName };
+        return { success: true, overlay: tool };
     } catch (e: any) {
         return { success: false, error: e.message };
     }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { OverlayCard, Overlay } from '@/components/OverlayCard';
+import { Overlay, OverlayCard } from '@/components/OverlayCard';
 
 export default function OverlaysPage() {
     const [overlays, setOverlays] = useState<Overlay[]>([]);

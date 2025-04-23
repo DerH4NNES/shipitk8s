@@ -11,13 +11,11 @@ export async function GET(request: NextRequest, context: any) {
         const rawYaml = await fs.readFile(filePath, 'utf8');
         const docs: any = yaml.loadAll(rawYaml);
 
-        // Baue ein minimales Detail‑Objekt
         const detail: any = {
             project,
             overlay,
             rawYaml,
             namespace: project,
-            createdAt: Number(overlay.split('-').pop()),
             pvcs: [],
             ingresses: [],
             services: [],
