@@ -15,11 +15,11 @@ export default function SignInPage() {
 
     return (
         <div className="container py-5">
-            <h1 className="mb-4">Bitte einloggen</h1>
+            <h1 className="mb-4">Sign In</h1>
             {Object.values(providers).map((p: any) => (
                 <div key={p.name} className="mb-2">
                     <button className="btn btn-primary" onClick={() => signIn(p.id)}>
-                        Mit {p.name} anmelden
+                        Login with {p.name} User
                     </button>
                 </div>
             ))}
